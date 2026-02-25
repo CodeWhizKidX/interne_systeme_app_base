@@ -1,0 +1,1142 @@
+{
+	"openapi": "3.0.0",
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"UserResponse": {
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"users": {
+						"items": {},
+						"type": "array"
+					},
+					"user": {}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Record_string.unknown_": {
+				"properties": {},
+				"additionalProperties": {},
+				"type": "object",
+				"description": "Construct a type with a set of properties K of type T"
+			},
+			"SubscriptionInfo": {
+				"description": "契約情報のレスポンス型",
+				"properties": {
+					"type": {
+						"type": "string",
+						"enum": [
+							"individual",
+							"corporate"
+						],
+						"description": "契約タイプ: 'individual'（個人）または 'corporate'（法人）"
+					},
+					"planCode": {
+						"type": "string",
+						"description": "プランコード（例: 'free', 'basic', 'premium', 'corporate_standard'）"
+					},
+					"planName": {
+						"type": "string",
+						"description": "プラン名（例: 'フリープラン', 'ベーシックプラン'）"
+					},
+					"status": {
+						"type": "string",
+						"description": "契約ステータス: 'trial', 'active', 'past_due', 'cancelled'"
+					},
+					"features": {
+						"$ref": "#/components/schemas/Record_string.unknown_",
+						"description": "プランの機能設定（JSON）"
+					},
+					"maxUsers": {
+						"type": "number",
+						"format": "double",
+						"nullable": true,
+						"description": "最大ユーザー数（法人のみ。-1 または null は無制限）"
+					},
+					"maxSharedPrompts": {
+						"type": "number",
+						"format": "double",
+						"nullable": true,
+						"description": "共有プロンプト作成上限数（-1 または null は無制限）"
+					},
+					"nextBillingDate": {
+						"type": "string",
+						"description": "次回請求日（個人契約のみ）"
+					},
+					"isCancelScheduled": {
+						"type": "boolean",
+						"description": "解約予約中かどうか"
+					},
+					"organizationName": {
+						"type": "string",
+						"description": "法人名（法人契約の場合）"
+					}
+				},
+				"required": [
+					"type",
+					"planCode",
+					"planName",
+					"status",
+					"features",
+					"maxUsers",
+					"maxSharedPrompts",
+					"isCancelScheduled"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CheckUserInfoSuccessResponse": {
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"user": {
+						"properties": {
+							"provider": {
+								"type": "string"
+							},
+							"lastLoginAt": {
+								"type": "string",
+								"format": "date-time",
+								"nullable": true
+							},
+							"displayName": {
+								"type": "string",
+								"nullable": true
+							},
+							"isFirstLoginCompleted": {
+								"type": "boolean"
+							},
+							"registrationDate": {
+								"type": "string",
+								"format": "date-time"
+							},
+							"authority": {
+								"type": "string"
+							},
+							"status": {
+								"type": "string"
+							},
+							"emailAddress": {
+								"type": "string"
+							},
+							"lastNameKana": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstNameKana": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string"
+							},
+							"firstName": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"provider",
+							"lastLoginAt",
+							"displayName",
+							"isFirstLoginCompleted",
+							"registrationDate",
+							"authority",
+							"status",
+							"emailAddress",
+							"lastNameKana",
+							"firstNameKana",
+							"lastName",
+							"firstName"
+						],
+						"type": "object"
+					},
+					"subscription": {
+						"$ref": "#/components/schemas/SubscriptionInfo"
+					}
+				},
+				"required": [
+					"message",
+					"user",
+					"subscription"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ErrorResponse": {
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CompleteFirstLoginSuccessResponse": {
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"user": {
+						"properties": {
+							"isFirstLoginCompleted": {
+								"type": "boolean"
+							},
+							"displayName": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"isFirstLoginCompleted",
+							"displayName",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"message",
+					"user"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CompleteFirstLoginRequest": {
+				"properties": {
+					"displayName": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string",
+						"description": "publicサブドメインの場合に必要な追加情報"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"firstNameKana": {
+						"type": "string"
+					},
+					"lastNameKana": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"displayName"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateDisplayNameSuccessResponse": {
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"user": {
+						"properties": {
+							"displayName": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"displayName",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"message",
+					"user"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateDisplayNameRequest": {
+				"properties": {
+					"displayName": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"displayName"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateProfileSuccessResponse": {
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"user": {
+						"properties": {
+							"displayName": {
+								"type": "string"
+							},
+							"lastNameKana": {
+								"type": "string"
+							},
+							"firstNameKana": {
+								"type": "string"
+							},
+							"lastName": {
+								"type": "string"
+							},
+							"firstName": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"displayName",
+							"lastNameKana",
+							"firstNameKana",
+							"lastName",
+							"firstName",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"message",
+					"user"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateProfileRequest": {
+				"properties": {
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"firstNameKana": {
+						"type": "string"
+					},
+					"lastNameKana": {
+						"type": "string"
+					},
+					"displayName": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"firstName",
+					"lastName",
+					"firstNameKana",
+					"lastNameKana",
+					"displayName"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CreateUserSuccessResponse": {
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"user": {
+						"properties": {
+							"displayName": {
+								"type": "string",
+								"nullable": true
+							},
+							"isFirstLoginCompleted": {
+								"type": "boolean"
+							},
+							"registrationDate": {
+								"type": "string"
+							},
+							"authority": {
+								"type": "string"
+							},
+							"status": {
+								"type": "string"
+							},
+							"emailAddress": {
+								"type": "string"
+							},
+							"lastNameKana": {
+								"type": "string"
+							},
+							"firstNameKana": {
+								"type": "string"
+							},
+							"lastName": {
+								"type": "string"
+							},
+							"firstName": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"displayName",
+							"isFirstLoginCompleted",
+							"registrationDate",
+							"authority",
+							"status",
+							"emailAddress",
+							"lastNameKana",
+							"firstNameKana",
+							"lastName",
+							"firstName",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"message",
+					"user"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UserAuthority": {
+				"type": "string",
+				"enum": [
+					"globalAdmin",
+					"serviceAdmin",
+					"readonlyAdmin",
+					"user"
+				],
+				"description": "ユーザー権限の型定義"
+			},
+			"UserStatus": {
+				"type": "string",
+				"enum": [
+					"active",
+					"inactive"
+				],
+				"description": "ユーザーステータスの型定義"
+			},
+			"CreateUserRequest": {
+				"properties": {
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"firstNameKana": {
+						"type": "string"
+					},
+					"lastNameKana": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"authority": {
+						"$ref": "#/components/schemas/UserAuthority"
+					},
+					"status": {
+						"$ref": "#/components/schemas/UserStatus"
+					}
+				},
+				"required": [
+					"firstName",
+					"lastName",
+					"firstNameKana",
+					"lastNameKana",
+					"email",
+					"authority"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateUserSuccessResponse": {
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"user": {
+						"properties": {
+							"displayName": {
+								"type": "string",
+								"nullable": true
+							},
+							"isFirstLoginCompleted": {
+								"type": "boolean"
+							},
+							"registrationDate": {
+								"type": "string"
+							},
+							"authority": {
+								"type": "string"
+							},
+							"status": {
+								"type": "string"
+							},
+							"emailAddress": {
+								"type": "string"
+							},
+							"lastNameKana": {
+								"type": "string"
+							},
+							"firstNameKana": {
+								"type": "string"
+							},
+							"lastName": {
+								"type": "string"
+							},
+							"firstName": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"displayName",
+							"isFirstLoginCompleted",
+							"registrationDate",
+							"authority",
+							"status",
+							"emailAddress",
+							"lastNameKana",
+							"firstNameKana",
+							"lastName",
+							"firstName",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"message",
+					"user"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateUserRequest": {
+				"properties": {
+					"originalEmail": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"firstNameKana": {
+						"type": "string"
+					},
+					"lastNameKana": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"authority": {
+						"$ref": "#/components/schemas/UserAuthority"
+					},
+					"status": {
+						"$ref": "#/components/schemas/UserStatus"
+					}
+				},
+				"required": [
+					"originalEmail",
+					"firstName",
+					"lastName",
+					"firstNameKana",
+					"lastNameKana",
+					"email",
+					"authority"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"DeleteUserSuccessResponse": {
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"DeleteUserRequest": {
+				"properties": {
+					"email": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email"
+				],
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "backend",
+		"version": "1.0.0",
+		"license": {
+			"name": "ISC"
+		},
+		"contact": {}
+	},
+	"paths": {
+		"/api/userinfo": {
+			"get": {
+				"operationId": "GetUserInfo",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Access Denied"
+					}
+				},
+				"description": "ユーザー情報を取得",
+				"tags": [
+					"User"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/check-user-info": {
+			"get": {
+				"operationId": "CheckUserInfo",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/CheckUserInfoSuccessResponse"
+										},
+										{
+											"$ref": "#/components/schemas/ErrorResponse"
+										}
+									]
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Access Denied",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "ユーザー情報のチェック",
+				"tags": [
+					"User"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "ログイン履歴を記録するかどうか（ログイン時のみtrue）",
+						"in": "query",
+						"name": "recordLogin",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					}
+				]
+			}
+		},
+		"/api/first-login": {
+			"put": {
+				"operationId": "CompleteFirstLogin",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/CompleteFirstLoginSuccessResponse"
+										},
+										{
+											"$ref": "#/components/schemas/ErrorResponse"
+										}
+									]
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Access Denied",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "初回ログイン完了処理",
+				"tags": [
+					"User"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "表示名",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CompleteFirstLoginRequest",
+								"description": "表示名"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/display-name": {
+			"put": {
+				"operationId": "UpdateDisplayName",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/UpdateDisplayNameSuccessResponse"
+										},
+										{
+											"$ref": "#/components/schemas/ErrorResponse"
+										}
+									]
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Access Denied",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "表示名を更新する",
+				"tags": [
+					"User"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "表示名",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateDisplayNameRequest",
+								"description": "表示名"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/profile": {
+			"put": {
+				"operationId": "UpdateProfile",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/UpdateProfileSuccessResponse"
+										},
+										{
+											"$ref": "#/components/schemas/ErrorResponse"
+										}
+									]
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Access Denied",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "プロフィール情報を更新する（姓名・フリガナ・表示名）",
+				"tags": [
+					"User"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "プロフィール情報",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateProfileRequest",
+								"description": "プロフィール情報"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/admin/users": {
+			"get": {
+				"operationId": "GetAllUsers",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"properties": {
+												"users": {
+													"items": {},
+													"type": "array"
+												},
+												"message": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"users",
+												"message"
+											],
+											"type": "object"
+										},
+										{
+											"$ref": "#/components/schemas/ErrorResponse"
+										}
+									]
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Access Denied",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "全ユーザー一覧を取得する（管理者用）",
+				"tags": [
+					"Admin - User Management"
+				],
+				"security": [],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "CreateUser",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/CreateUserSuccessResponse"
+										},
+										{
+											"$ref": "#/components/schemas/ErrorResponse"
+										}
+									]
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Access Denied",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "新しいユーザーを作成する（管理者用）",
+				"tags": [
+					"Admin - User Management"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "作成するユーザーの詳細データ",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateUserRequest",
+								"description": "作成するユーザーの詳細データ"
+							}
+						}
+					}
+				}
+			},
+			"put": {
+				"operationId": "UpdateUser",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/UpdateUserSuccessResponse"
+										},
+										{
+											"$ref": "#/components/schemas/ErrorResponse"
+										}
+									]
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Access Denied",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "既存のユーザーを更新する（管理者用）",
+				"tags": [
+					"Admin - User Management"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "更新するユーザーの詳細データ（originalEmailでユーザーを特定）",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateUserRequest",
+								"description": "更新するユーザーの詳細データ（originalEmailでユーザーを特定）"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteUser",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/DeleteUserSuccessResponse"
+										},
+										{
+											"$ref": "#/components/schemas/ErrorResponse"
+										}
+									]
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Access Denied",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "ユーザーとその関連データを全て削除する（管理者用）",
+				"tags": [
+					"Admin - User Management"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "削除するユーザーのメールアドレス",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/DeleteUserRequest",
+								"description": "削除するユーザーのメールアドレス"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "http://localhost:3000/api"
+		}
+	],
+	"tags": [
+		{
+			"name": "User",
+			"description": "ユーザー情報API"
+		}
+	]
+}

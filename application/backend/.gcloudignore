@@ -1,0 +1,9 @@
+dist/.*
+dist
+dist/*
+
+node_modules
+
+# Prisma を除外対象から外す
+!prisma/
+!prisma/schema.prisma

@@ -1,0 +1,21 @@
+steps:
+  # 1️⃣ Node.js 依存関係をインストール
+  - name: "gcr.io/cloud-builders/npm"
+    args: ["ci"]
+
+  # 2️⃣ TypeScript をビルド
+  - name: "gcr.io/cloud-builders/npm"
+    args: ["run", "build"]
+
+  # 3️⃣ Docker イメージをビルド（Artifact Registry 向け）
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "asia-northeast1-docker.pkg.dev/$PROJECT_ID/backend-repo/backend",
+        ".",
+      ]
+
+images:
+  - "asia-northeast1-docker.pkg.dev/$PROJECT_ID/backend-repo/backend"

@@ -1,0 +1,40 @@
+# CreateUserSuccessResponseUser
+
+
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**displayName** | **string** |  | [default to undefined]
+**isFirstLoginCompleted** | **boolean** |  | [default to undefined]
+**registrationDate** | **string** |  | [default to undefined]
+**authority** | **string** |  | [default to undefined]
+**status** | **string** |  | [default to undefined]
+**emailAddress** | **string** |  | [default to undefined]
+**lastNameKana** | **string** |  | [default to undefined]
+**firstNameKana** | **string** |  | [default to undefined]
+**lastName** | **string** |  | [default to undefined]
+**firstName** | **string** |  | [default to undefined]
+**id** | **string** |  | [default to undefined]
+
+## Example
+
+```typescript
+import { CreateUserSuccessResponseUser } from './api';
+
+const instance: CreateUserSuccessResponseUser = {
+    displayName,
+    isFirstLoginCompleted,
+    registrationDate,
+    authority,
+    status,
+    emailAddress,
+    lastNameKana,
+    firstNameKana,
+    lastName,
+    firstName,
+    id,
+};
+```
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

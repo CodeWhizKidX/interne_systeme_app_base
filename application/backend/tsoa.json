@@ -1,0 +1,19 @@
+{
+  "entryFile": "src/server.ts",
+  "noImplicitAdditionalProperties": "throw-on-extras",
+  "controllerPathGlobs": ["src/controllers/**/*.ts"],
+  "spec": {
+    "outputDirectory": "src/generated/tsoa",
+    "specVersion": 3,
+    "specFileBaseName": "swagger",
+    "basePath": "/api",
+    "host": "localhost:3000",
+    "schemes": ["http"],
+    "tags": [
+      { "name": "User", "description": "ユーザー情報API" }
+    ]
+  },
+  "routes": {
+    "routesDir": "src/generated/tsoa"
+  }
+}

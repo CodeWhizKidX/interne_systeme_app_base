@@ -1,0 +1,73 @@
+# デザインガイドライン
+
+## 基本方針
+- **コンセプト**: シンプル、モダン、モノトーン
+- **色調**: 白（ほんの少しグレー）と黒（ほんの少し明るい黒）を基調とする。
+- **禁止事項**: `teal-500`, `cyan-500`, `blue-500` などの有彩色なグラデーションや背景色は使用せず、モノトーンで統一する。警告色（赤、黄）などの機能的な色は例外的に許可するが、可能な限り控えめにする。
+
+## カラーパレット (Tailwind CSS)
+
+### 背景色 (Backgrounds)
+- **アプリ全体**: `bg-gray-50` (わずかにグレーがかった白)
+- **カード・パネル・サイドバー**: `bg-white`
+- **アクティブな要素・主要ボタン**: `bg-gray-800` (完全な黒ではなく、視認性の良いダークグレー)
+- **ホバー時の背景**: `bg-gray-100` または `bg-gray-900` (ボタンの場合)
+- **アクセントヘッダー**: `bg-gray-800`
+
+### テキスト色 (Text)
+- **主要テキスト**: `text-gray-900` または `text-gray-800`
+- **サブテキスト・非アクティブ**: `text-gray-600`
+- **反転テキスト（暗い背景上）**: `text-white`
+- **プレースホルダー**: `text-gray-400`
+
+### ボーダー (Borders)
+- **区切り線・枠線**: `border-gray-200` または `border-gray-300`
+- **フォーカスリング**: `focus:ring-gray-400` または `focus:ring-gray-500`
+
+## コンポーネントスタイル
+
+### ボタン・メニュー項目
+- **形状**: `rounded-lg` または `rounded-xl` (少し丸みを持たせる)
+- **影**: `shadow-sm`, `shadow-md` (控えめな影)
+- **インタラクション**:
+  - 通常時: `text-gray-600 hover:bg-gray-100 hover:text-gray-900`
+  - アクティブ時: `bg-gray-800 text-white shadow-sm`
+  - 主要ボタン: `bg-gray-800 text-white hover:bg-gray-900 shadow-md`
+
+### カード (Card)
+- **背景**: `bg-white`
+- **枠線**: `border border-gray-100` または `border-gray-200`
+- **影**: `shadow-sm hover:shadow-lg`
+- **ヘッダー装飾**: `bg-gray-800` (グラデーションではなく単色)
+
+### 入力フォーム (Input/Textarea)
+- **背景**: `bg-white` または `bg-gray-50`
+- **枠線**: `border-gray-300`
+- **フォーカス**: `focus:ring-2 focus:ring-gray-400 focus:outline-none`
+
+## 実装例
+
+### メニュー項目
+```tsx
+<div className={`px-3 py-2.5 rounded-lg transition-all ${
+  isActive 
+    ? "bg-gray-800 text-white shadow-sm" 
+    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+}`}>
+  Icon + Text
+</div>
+```
+
+### 主要ボタン
+```tsx
+<button className="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors">
+  ボタン
+</button>
+```
+
+### バッジ・タグ
+```tsx
+<span className="bg-gray-100 text-gray-800 border border-gray-200 px-2 py-1 rounded-full text-xs font-bold">
+  タグ
+</span>
+```
