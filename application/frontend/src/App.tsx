@@ -66,7 +66,7 @@ function AppContent() {
           customDisplayName: result.user.displayName ?? undefined,
           provider: result.user.provider,
           // Googleのプロフィール画像を保持（既存の値があればそれを使用）
-          photoURL: existingPhotoURL || undefined,
+          photoURL: existingPhotoURL || null,
           picture: existingPicture || undefined,
         });
 
@@ -109,7 +109,7 @@ function AppContent() {
           
           if (isJWT) {
             // IDトークンの場合、有効期限をチェック
-            const tokenPayload = jwtDecode<{ exp?: number }>(idToken);
+            const tokenPayload = jwtDecode<{ exp?: number; sub?: string; email?: string; email_verified?: boolean; picture?: string; name?: string }>(idToken);
             const now = Math.floor(Date.now() / 1000);
             
             if (tokenPayload.exp && tokenPayload.exp < now) {
@@ -121,8 +121,19 @@ function AppContent() {
               return;
             }
             
-          // トークンが有効な場合は、ユーザー情報を復元
-          const userPayload = googleTokenToPayload(tokenPayload);
+            // トークンが有効な場合は、ユーザー情報を復元
+            // GoogleTokenPayload形式に変換
+            const googleTokenPayload = {
+              sub: tokenPayload.sub || "",
+              email: tokenPayload.email || "",
+              email_verified: tokenPayload.email_verified || false,
+              name: tokenPayload.name,
+              picture: tokenPayload.picture,
+              given_name: undefined,
+              family_name: undefined,
+              hd: undefined,
+            };
+            const userPayload = googleTokenToPayload(googleTokenPayload);
           
           // Googleのプロフィール画像をlocalStorageに保存（表示名更新などで失われないようにする）
           if (userPayload.photoURL || userPayload.picture) {
@@ -211,7 +222,7 @@ function AppContent() {
         isFirstLoginCompleted: true,
         customDisplayName: displayName,
         // Googleのプロフィール画像を保持
-        photoURL: user.photoURL || user.picture || undefined,
+        photoURL: user.photoURL || user.picture || null,
         picture: user.picture || user.photoURL || undefined,
       });
     }
