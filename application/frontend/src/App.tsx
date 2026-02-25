@@ -54,11 +54,20 @@ function AppContent() {
 
       if (result && result.user) {
         // Google OAuth User情報を更新
+        // photoURLとpictureは保持する（表示名更新などで失われないようにする）
+        // 既存の画像URLを優先的に保持（currentUserまたはlocalStorageから）
+        const savedPicture = localStorage.getItem("google_profile_picture");
+        const existingPhotoURL = currentUser?.photoURL || currentUser?.picture || savedPicture;
+        const existingPicture = currentUser?.picture || currentUser?.photoURL || savedPicture;
+        
         setUser({
           ...currentUser,
           isFirstLoginCompleted: result.user.isFirstLoginCompleted,
           customDisplayName: result.user.displayName ?? undefined,
           provider: result.user.provider,
+          // Googleのプロフィール画像を保持（既存の値があればそれを使用）
+          photoURL: existingPhotoURL || undefined,
+          picture: existingPicture || undefined,
         });
 
         // DBから取得したユーザー情報をContextに保存
@@ -112,12 +121,21 @@ function AppContent() {
               return;
             }
             
-            // トークンが有効な場合は、ユーザー情報を復元
-            const userPayload = googleTokenToPayload(tokenPayload);
-            setUser(userPayload);
-            
-            // DBから最新情報を取得
-            await refreshUserInfo(userPayload, false);
+          // トークンが有効な場合は、ユーザー情報を復元
+          const userPayload = googleTokenToPayload(tokenPayload);
+          
+          // Googleのプロフィール画像をlocalStorageに保存（表示名更新などで失われないようにする）
+          if (userPayload.photoURL || userPayload.picture) {
+            const pictureUrl = userPayload.photoURL || userPayload.picture;
+            if (pictureUrl) {
+              localStorage.setItem("google_profile_picture", pictureUrl);
+            }
+          }
+          
+          setUser(userPayload);
+          
+          // DBから最新情報を取得
+          await refreshUserInfo(userPayload, false);
           } else {
             // アクセストークンの場合、バックエンドで検証してもらうため、
             // 一時的なユーザー情報を作成してAPIを呼び出す
@@ -192,6 +210,9 @@ function AppContent() {
         ...user,
         isFirstLoginCompleted: true,
         customDisplayName: displayName,
+        // Googleのプロフィール画像を保持
+        photoURL: user.photoURL || user.picture || undefined,
+        picture: user.picture || user.photoURL || undefined,
       });
     }
   };

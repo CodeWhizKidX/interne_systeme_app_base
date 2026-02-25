@@ -70,6 +70,11 @@ export function UserProvider({ children }: UserProviderProps) {
   const [user, setUser] = useState<AuthUser>(null);
   const [dbUserInfo, setDbUserInfo] = useState<DbUserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // Googleのプロフィール画像URLを常に保持（表示名更新などで失われないようにする）
+  // localStorageから復元（ページリロード時にも保持）
+  const [googleProfilePicture, setGoogleProfilePicture] = useState<string | null>(() => {
+    return localStorage.getItem("google_profile_picture");
+  });
 
   /**
    * 管理者かどうか（user以外の権限）
@@ -118,10 +123,14 @@ export function UserProvider({ children }: UserProviderProps) {
 
   /**
    * プロフィール画像URLを取得
+   * 常にGoogleのプロフィール画像を返す（表示名更新などで失われないようにする）
    */
   const getProfilePicture = useCallback((): string | null => {
-    return user?.photoURL || user?.picture || null;
-  }, [user]);
+    // 優先順位: 保存されたGoogle画像 > userのphotoURL > userのpicture > localStorage
+    // 常にGoogleの画像を返す（nullでない限り）
+    const savedPicture = localStorage.getItem("google_profile_picture");
+    return googleProfilePicture || savedPicture || user?.photoURL || user?.picture || null;
+  }, [user, googleProfilePicture]);
 
   /**
    * 認証プロバイダーを取得
@@ -131,18 +140,39 @@ export function UserProvider({ children }: UserProviderProps) {
   }, [user, dbUserInfo]);
 
   /**
+   * ユーザー情報を設定（Googleのプロフィール画像も保存）
+   */
+  const setUserWithProfilePicture = useCallback((newUser: AuthUser) => {
+    setUser(newUser);
+    // Googleのプロフィール画像URLを保存（表示名更新などで失われないようにする）
+    // 新しいユーザー情報に画像URLがある場合は更新、ない場合は既存の値を保持
+    if (newUser?.photoURL || newUser?.picture) {
+      const pictureUrl = newUser.photoURL || newUser.picture || null;
+      setGoogleProfilePicture(pictureUrl);
+      // localStorageにも保存（ページリロード時にも保持）
+      if (pictureUrl) {
+        localStorage.setItem("google_profile_picture", pictureUrl);
+      }
+    }
+    // 新しいユーザー情報に画像URLがない場合でも、既存のgoogleProfilePictureは保持する
+    // （表示名更新などでuserオブジェクトが更新されても、画像URLは失われない）
+  }, []);
+
+  /**
    * ログアウト時のクリア
    */
   const clearUser = useCallback(() => {
     setUser(null);
     setDbUserInfo(null);
+    setGoogleProfilePicture(null);
+    localStorage.removeItem("google_profile_picture");
   }, []);
 
   return (
     <UserContext.Provider
       value={{
         user,
-        setUser,
+        setUser: setUserWithProfilePicture,
         dbUserInfo,
         setDbUserInfo,
         isLoading,
