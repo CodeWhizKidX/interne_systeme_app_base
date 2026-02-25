@@ -26,12 +26,10 @@ import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerM
 export interface CheckUserInfo200Response {
     'message': string;
     'user': CheckUserInfoSuccessResponseUser;
-    'subscription': SubscriptionInfo;
 }
 export interface CheckUserInfoSuccessResponse {
     'message': string;
     'user': CheckUserInfoSuccessResponseUser;
-    'subscription': SubscriptionInfo;
 }
 export interface CheckUserInfoSuccessResponseUser {
     'provider': string;
@@ -122,59 +120,6 @@ export interface GetAllUsers200ResponseAnyOf {
     'users': Array<any>;
     'message': string;
 }
-/**
- * 契約情報のレスポンス型
- */
-export interface SubscriptionInfo {
-    /**
-     * 契約タイプ: \'individual\'（個人）または \'corporate\'（法人）
-     */
-    'type': SubscriptionInfoTypeEnum;
-    /**
-     * プランコード（例: \'free\', \'basic\', \'premium\', \'corporate_standard\'）
-     */
-    'planCode': string;
-    /**
-     * プラン名（例: \'フリープラン\', \'ベーシックプラン\'）
-     */
-    'planName': string;
-    /**
-     * 契約ステータス: \'trial\', \'active\', \'past_due\', \'cancelled\'
-     */
-    'status': string;
-    /**
-     * Construct a type with a set of properties K of type T
-     */
-    'features': { [key: string]: any; };
-    /**
-     * 最大ユーザー数（法人のみ。-1 または null は無制限）
-     */
-    'maxUsers': number | null;
-    /**
-     * 共有プロンプト作成上限数（-1 または null は無制限）
-     */
-    'maxSharedPrompts': number | null;
-    /**
-     * 次回請求日（個人契約のみ）
-     */
-    'nextBillingDate'?: string;
-    /**
-     * 解約予約中かどうか
-     */
-    'isCancelScheduled': boolean;
-    /**
-     * 法人名（法人契約の場合）
-     */
-    'organizationName'?: string;
-}
-
-export const SubscriptionInfoTypeEnum = {
-    Individual: 'individual',
-    Corporate: 'corporate'
-} as const;
-
-export type SubscriptionInfoTypeEnum = typeof SubscriptionInfoTypeEnum[keyof typeof SubscriptionInfoTypeEnum];
-
 export interface UpdateDisplayName200Response {
     'message': string;
     'user': UpdateDisplayNameSuccessResponseUser;
@@ -264,6 +209,23 @@ export const UserStatus = {
 export type UserStatus = typeof UserStatus[keyof typeof UserStatus];
 
 
+export interface VerifyTokenRequest {
+    'accessToken': string;
+}
+export interface VerifyTokenResponse {
+    'idToken': string;
+    'user': VerifyTokenResponseUser;
+}
+export interface VerifyTokenResponseUser {
+    'hd'?: string;
+    'family_name'?: string;
+    'given_name'?: string;
+    'picture'?: string;
+    'name'?: string;
+    'email_verified': boolean;
+    'email': string;
+    'sub': string;
+}
 
 /**
  * AdminUserManagementApi - axios parameter creator
@@ -548,6 +510,105 @@ export class AdminUserManagementApi extends BaseAPI {
      */
     public updateUser(updateUserRequest: UpdateUserRequest, options?: RawAxiosRequestConfig) {
         return AdminUserManagementApiFp(this.configuration).updateUser(updateUserRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * AuthApi - axios parameter creator
+ */
+export const AuthApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Googleアクセストークンを検証し、IDトークンとして扱う
+         * @param {VerifyTokenRequest} verifyTokenRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        verifyGoogleToken: async (verifyTokenRequest: VerifyTokenRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'verifyTokenRequest' is not null or undefined
+            assertParamExists('verifyGoogleToken', 'verifyTokenRequest', verifyTokenRequest)
+            const localVarPath = `/auth/google/verify`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(verifyTokenRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AuthApi - functional programming interface
+ */
+export const AuthApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = AuthApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Googleアクセストークンを検証し、IDトークンとして扱う
+         * @param {VerifyTokenRequest} verifyTokenRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async verifyGoogleToken(verifyTokenRequest: VerifyTokenRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VerifyTokenResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.verifyGoogleToken(verifyTokenRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthApi.verifyGoogleToken']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * AuthApi - factory interface
+ */
+export const AuthApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = AuthApiFp(configuration)
+    return {
+        /**
+         * Googleアクセストークンを検証し、IDトークンとして扱う
+         * @param {VerifyTokenRequest} verifyTokenRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        verifyGoogleToken(verifyTokenRequest: VerifyTokenRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerifyTokenResponse> {
+            return localVarFp.verifyGoogleToken(verifyTokenRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * AuthApi - object-oriented interface
+ */
+export class AuthApi extends BaseAPI {
+    /**
+     * Googleアクセストークンを検証し、IDトークンとして扱う
+     * @param {VerifyTokenRequest} verifyTokenRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public verifyGoogleToken(verifyTokenRequest: VerifyTokenRequest, options?: RawAxiosRequestConfig) {
+        return AuthApiFp(this.configuration).verifyGoogleToken(verifyTokenRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

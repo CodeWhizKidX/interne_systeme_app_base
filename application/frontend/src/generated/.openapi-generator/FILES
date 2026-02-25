@@ -5,6 +5,7 @@ base.ts
 common.ts
 configuration.ts
 docs/AdminUserManagementApi.md
+docs/AuthApi.md
 docs/CheckUserInfo200Response.md
 docs/CheckUserInfoSuccessResponse.md
 docs/CheckUserInfoSuccessResponseUser.md
@@ -22,7 +23,6 @@ docs/DeleteUserSuccessResponse.md
 docs/ErrorResponse.md
 docs/GetAllUsers200Response.md
 docs/GetAllUsers200ResponseAnyOf.md
-docs/SubscriptionInfo.md
 docs/UpdateDisplayName200Response.md
 docs/UpdateDisplayNameRequest.md
 docs/UpdateDisplayNameSuccessResponse.md
@@ -38,5 +38,8 @@ docs/UserApi.md
 docs/UserAuthority.md
 docs/UserResponse.md
 docs/UserStatus.md
+docs/VerifyTokenRequest.md
+docs/VerifyTokenResponse.md
+docs/VerifyTokenResponseUser.md
 git_push.sh
 index.ts

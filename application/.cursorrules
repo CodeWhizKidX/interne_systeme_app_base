@@ -1,0 +1,179 @@
+# Cursor AI Rules for ChatBot Application
+
+## デザインシステム - カラーパレット
+
+フロントエンド（frontend, landing-page）の開発時は、以下のカラーパレットを使用してください。
+
+### 1. メインカラー（基本となる色）
+信頼感を表す深い紺色。ブランドの基調となる色です。
+
+- **カラー名**: ダークネイビー
+- **カラーコード**: `#1A2433`
+- **Tailwind**: `bg-[#1A2433]`, `text-[#1A2433]`
+- **用途**: 見出し、メインボタン、ロゴ、重要なアイコン
+
+### 2. ベースカラー（背景色）
+メインカラーを引き立てる、明るく清潔感のある色です。
+
+- **カラー名**: オフホワイト / スノーホワイト
+- **カラーコード**: `#F8FAFC`（または `#FFFFFF`）
+- **Tailwind**: `bg-slate-50` または `bg-[#F8FAFC]`
+- **用途**: 背景全体、カードの背景
+
+### 3. セカンダリーカラー（補助色）
+メインカラーのトーンに合わせつつ、少し軽やかさを出す色です。
+
+- **カラー名**: スマートブルー
+- **カラーコード**: `#3B82F6`
+- **Tailwind**: `bg-blue-500`, `text-blue-500`
+- **用途**: テキストリンク、サブボタン、ホバー時の反応
+
+### 4. アクセントカラー（強調色）
+「New」バッジや、特に注目させたい要素に使う色です。
+
+#### ティール（誠実さを維持する場合）
+- **カラーコード**: `#0D9488`
+- **Tailwind**: `bg-teal-600`, `text-teal-600`
+
+#### オレンジ（より注目を集めたい場合）
+- **カラーコード**: `#F59E0B`
+- **Tailwind**: `bg-amber-500`, `text-amber-500`
+
+- **用途**: バッジ、通知、重要度の高い警告やボタン
+
+### 5. テキストカラー（文字色）
+可読性を重視したグレーの階層です。
+
+#### メインテキスト
+- **カラーコード**: `#1F2937`
+- **Tailwind**: `text-gray-800`
+- **用途**: 本文、見出し
+
+#### サブテキスト
+- **カラーコード**: `#6B7280`
+- **Tailwind**: `text-gray-500`
+- **用途**: 補足説明文、キャプション、プレースホルダー
+
+### カラー使用例
+
+```tsx
+// メインボタン
+<button className="bg-[#1A2433] hover:bg-[#2A3443] text-white">
+  送信
+</button>
+
+// セカンダリーボタン
+<button className="bg-blue-500 hover:bg-blue-600 text-white">
+  詳細を見る
+</button>
+
+// アクセントバッジ
+<span className="bg-teal-600 text-white text-xs px-2 py-1 rounded">
+  New
+</span>
+
+// カード
+<div className="bg-[#F8FAFC] border border-gray-200 rounded-lg p-4">
+  <h3 className="text-gray-800 font-bold">タイトル</h3>
+  <p className="text-gray-500">説明文</p>
+</div>
+```
+
+---
+
+## 管理者用API構築ルール
+
+### ファイル命名規則
+
+管理者用APIを構築する場合は、以下のルールに従ってください：
+
+1. **ファイル名に `Admin` を含める**
+   - 一般ユーザー用: `xxxController.ts`（例: `userController.ts`, `teamController.ts`）
+   - 管理者用: `xxxAdminController.ts`（例: `userAdminController.ts`, `teamAdminController.ts`）
+
+2. **APIパスに `/admin/` を含める**
+   - 一般ユーザー用: `/api/xxx`（例: `/api/user/teams`）
+   - 管理者用: `/api/admin/xxx`（例: `/api/admin/users`, `/api/admin/teams`）
+
+### ミドルウェアによる保護
+
+`server.ts` で以下のように管理者用APIはミドルウェアで自動保護されています：
+
+```typescript
+app.use("/api/admin", requireAdmin);
+app.use("/api/organization", requireAdmin);
+```
+
+- `/api/admin/*` パスのAPIは `requireAdmin` ミドルウェアで自動的に管理者権限チェックされます
+- コントローラー内で個別の権限チェックは不要です（防御的チェックとして残すことは可能）
+
+### 実装例
+
+**管理者用Controller作成時:**
+
+```typescript
+// backend/src/controllers/userAdminController.ts
+@Route("api/admin/users")
+@Tags("Admin - User Management")
+export class UserAdminController extends Controller {
+  // 管理者用API
+}
+```
+
+**一般ユーザー用Controller:**
+
+```typescript
+// backend/src/controllers/userController.ts
+@Route("api")
+@Tags("User")
+export class UserController extends Controller {
+  // 一般ユーザー用API
+}
+```
+
+### フロントエンドでのAPI使用
+
+- 管理者用API: `adminUserApi`, `adminTeamApi` などを使用
+- 一般ユーザー用API: `userApi`, `teamApi` などを使用
+
+---
+
+## 自動実行コマンドの提案ルール
+
+### Controller変更時の自動コード生成
+
+**重要**: backend/src/controllers/ 配下のファイルを変更・追加・削除した場合、以下の手順を**必ず実行**してください：
+
+1. **Controllerファイルの編集完了後、即座に以下を実行**:
+   
+bash
+   cd backend && npm run exec-api
+   
+
+2. **実行の確認**:
+   - コマンドが正常に完了したことを確認
+   - frontend/src/generated/ ディレクトリが更新されたことを確認
+
+3. **エラーチェック**:
+   - フロントエンドでTypeScriptエラーが発生していないか確認
+   - 「プロパティ 'xxx' は型 'XxxApi' に存在しません」というエラーが発生した場合は、上記コマンドが実行されていない可能性があります
+
+### AIアシスタントへの指示
+
+Controllerファイルを変更・追加・削除した場合、AIアシスタントは以下を**必ず実行**する必要があります：
+
+1. **変更の検出**: backend/src/controllers/ 配下のファイルが変更されたことを検出
+2. **コマンド提案**: ユーザーに対して cd backend && npm run exec-api の実行を**明確に提案**する
+3. **実行確認**: コマンドが実行されたかどうかを確認し、実行されていない場合は再度提案する
+
+### 実行タイミング
+
+Controllerファイルの編集を完了した**直後**
+フロントエンドでAPIクライアントを使用する**前**
+TypeScriptエラーが発生した場合、まずこのコマンドの実行を確認
+
+### 注意事項
+
+このコマンドは**バックエンドディレクトリ**で実行する必要があります
+コマンドの実行には数秒から数十秒かかる場合があります
+コマンドが失敗した場合は、エラーメッセージを確認して問題を解決してください

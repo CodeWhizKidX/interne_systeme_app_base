@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import type { AxiosError } from "axios";
@@ -8,8 +8,8 @@ import LoginScreen from "./components/LoginScreen";
 import Layout from "./components/Layout";
 import Home from "./page/Home";
 import type { UserPayload } from "./types/auth";
-import { firebaseUserToPayload } from "./types/auth";
-import { auth, logoutUser, onAuthChange } from "./firebase";
+import { googleTokenToPayload } from "./types/auth";
+import { jwtDecode } from "jwt-decode";
 import AdminDashboard from "./page/admin/AdminDashboard";
 import UserManagement from "./page/admin/UserManagement";
 import Forbidden from "./page/common/Forbidden";
@@ -40,11 +40,6 @@ function AppContent() {
   
   // 認証エラー状態（403 Forbiddenなど）
   const [authError, setAuthError] = useState<number | null>(null);
-  
-  // ログイン処理中フラグ（handleLoginSuccessが呼ばれた時にtrueになる）
-  // onAuthChangeとhandleLoginSuccessの重複呼び出しを防ぐ
-  // useRefを使用してクロージャの問題を回避
-  const isLoggingInRef = useRef(false);
 
   // ユーザー情報を最新化する関数
   const refreshUserInfo = async (
@@ -58,7 +53,7 @@ function AppContent() {
       console.log("Debug - provider from API:", result?.user?.provider);
 
       if (result && result.user) {
-        // Firebase User情報を更新
+        // Google OAuth User情報を更新
         setUser({
           ...currentUser,
           isFirstLoginCompleted: result.user.isFirstLoginCompleted,
@@ -94,97 +89,94 @@ function AppContent() {
     }
   };
 
-  // Firebase認証状態の監視
+  // 認証状態の監視（ページリロード時など）
   useEffect(() => {
-    const unsubscribe = onAuthChange(async (firebaseUser) => {
-      if (firebaseUser) {
-        // メールアドレス認証の場合、メール確認が完了しているかチェック
-        // Google認証などのプロバイダー経由の場合はメール確認不要
-        const isEmailProvider = firebaseUser.providerData.some(
-          (provider) => provider.providerId === "password"
-        );
-        
-        if (isEmailProvider && !firebaseUser.emailVerified) {
-          // メール未確認の場合はログイン状態にしない
-          console.log("App: メールアドレス未確認のためログイン状態にしません");
-          setIsLoading(false);
-          return;
-        }
-        
-        // Firebase UserをUserPayloadに変換
-        const userPayload = firebaseUserToPayload(firebaseUser);
-        
-        // IDトークンを取得してlocalStorageに保存
+    const checkAuthState = async () => {
+      const idToken = localStorage.getItem("id_token");
+      if (idToken) {
         try {
-          const idToken = await firebaseUser.getIdToken();
-          localStorage.setItem("id_token", idToken);
+          // トークンがJWT形式（IDトークン）かどうかを判定
+          const isJWT = idToken.split(".").length === 3;
           
-          setUser(userPayload);
-          console.log("App: Firebase認証済みユーザーを設定しました", userPayload);
-          
-          // ログイン処理中（handleLoginSuccessから呼ばれる予定）の場合はスキップ
-          // handleLoginSuccessで recordLogin=true で呼び出されるため
-          if (isLoggingInRef.current) {
-            console.log("App: ログイン処理中のためonAuthChangeでのAPI呼び出しをスキップ");
-            setIsLoading(false);
-            return;
+          if (isJWT) {
+            // IDトークンの場合、有効期限をチェック
+            const tokenPayload = jwtDecode<{ exp?: number }>(idToken);
+            const now = Math.floor(Date.now() / 1000);
+            
+            if (tokenPayload.exp && tokenPayload.exp < now) {
+              // トークンが期限切れの場合は削除
+              console.log("App: トークンが期限切れです");
+              localStorage.removeItem("id_token");
+              clearUser();
+              setIsLoading(false);
+              return;
+            }
+            
+            // トークンが有効な場合は、ユーザー情報を復元
+            const userPayload = googleTokenToPayload(tokenPayload);
+            setUser(userPayload);
+            
+            // DBから最新情報を取得
+            await refreshUserInfo(userPayload, false);
+          } else {
+            // アクセストークンの場合、バックエンドで検証してもらうため、
+            // 一時的なユーザー情報を作成してAPIを呼び出す
+            // 実際には、バックエンドで検証されるため、ここでは空のペイロードを使用
+            const tempPayload = {
+              sub: "",
+              email: "",
+              email_verified: false,
+            };
+            const userPayload = googleTokenToPayload(tempPayload);
+            setUser(userPayload);
+            
+            // DBから最新情報を取得（バックエンドでトークンが検証される）
+            await refreshUserInfo(userPayload, false);
           }
-          
-          // DBから最新情報を取得（ページリロード時など、recordLogin=false）
-          await refreshUserInfo(userPayload);
         } catch (error) {
-          console.error("IDトークン取得エラー:", error);
+          console.error("トークン検証エラー:", error);
+          localStorage.removeItem("id_token");
           clearUser();
           setIsLoading(false);
         }
       } else {
         console.log("App: 未認証状態です");
-        localStorage.removeItem("id_token");
         clearUser();
         setIsLoading(false);
       }
-    });
-
-    // クリーンアップ
-    return () => unsubscribe();
+    };
+    
+    checkAuthState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ログイン成功時の処理
-  const handleLoginSuccess = async () => {
-    // ログイン処理中フラグを立てる（onAuthChangeでのAPI呼び出しを防ぐ）
-    isLoggingInRef.current = true;
+  const handleLoginSuccess = async (idToken: string, tokenPayload: any) => {
     // 認証エラー状態をリセット（前回のエラーが残っている場合に備えて）
     setAuthError(null);
     console.log("App: handleLoginSuccess - ログイン処理開始");
     
-    const firebaseUser = auth.currentUser;
-    if (firebaseUser) {
-      const userPayload = firebaseUserToPayload(firebaseUser);
+    try {
+      // IDトークンをlocalStorageに保存
+      localStorage.setItem("id_token", idToken);
       
-      try {
-        const idToken = await firebaseUser.getIdToken();
-        localStorage.setItem("id_token", idToken);
-        
-        setUser(userPayload);
-        // DBから最新情報を取得（ログイン時はrecordLogin=trueでログイン履歴を記録）
-        await refreshUserInfo(userPayload, true);
-        console.log("App: handleLoginSuccess - ログイン履歴を記録しました");
-      } catch (error) {
-        console.error("IDトークン取得エラー:", error);
-      } finally {
-        // ログイン処理完了後にフラグをリセット
-        isLoggingInRef.current = false;
-      }
-    } else {
-      isLoggingInRef.current = false;
+      // トークンペイロードをUserPayloadに変換
+      const userPayload = googleTokenToPayload(tokenPayload);
+      setUser(userPayload);
+      
+      // DBから最新情報を取得（ログイン時はrecordLogin=trueでログイン履歴を記録）
+      await refreshUserInfo(userPayload, true);
+      console.log("App: handleLoginSuccess - ログイン履歴を記録しました");
+    } catch (error) {
+      console.error("ログイン処理エラー:", error);
+      localStorage.removeItem("id_token");
+      clearUser();
     }
   };
 
   // ログアウト処理
   const handleLogout = async () => {
     try {
-      await logoutUser();
       clearUser(); // User情報をクリア
       setAuthError(null); // 認証エラー状態をリセット
       localStorage.removeItem("id_token");

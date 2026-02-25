@@ -7,7 +7,6 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **message** | **string** |  | [default to undefined]
 **user** | [**CheckUserInfoSuccessResponseUser**](CheckUserInfoSuccessResponseUser.md) |  | [default to undefined]
-**subscription** | [**SubscriptionInfo**](SubscriptionInfo.md) |  | [default to undefined]
 
 ## Example
 
@@ -17,7 +16,6 @@ import { CheckUserInfoSuccessResponse } from './api';
 const instance: CheckUserInfoSuccessResponse = {
     message,
     user,
-    subscription,
 };
 ```
 

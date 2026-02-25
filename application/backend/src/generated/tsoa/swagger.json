@@ -24,77 +24,6 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"Record_string.unknown_": {
-				"properties": {},
-				"additionalProperties": {},
-				"type": "object",
-				"description": "Construct a type with a set of properties K of type T"
-			},
-			"SubscriptionInfo": {
-				"description": "契約情報のレスポンス型",
-				"properties": {
-					"type": {
-						"type": "string",
-						"enum": [
-							"individual",
-							"corporate"
-						],
-						"description": "契約タイプ: 'individual'（個人）または 'corporate'（法人）"
-					},
-					"planCode": {
-						"type": "string",
-						"description": "プランコード（例: 'free', 'basic', 'premium', 'corporate_standard'）"
-					},
-					"planName": {
-						"type": "string",
-						"description": "プラン名（例: 'フリープラン', 'ベーシックプラン'）"
-					},
-					"status": {
-						"type": "string",
-						"description": "契約ステータス: 'trial', 'active', 'past_due', 'cancelled'"
-					},
-					"features": {
-						"$ref": "#/components/schemas/Record_string.unknown_",
-						"description": "プランの機能設定（JSON）"
-					},
-					"maxUsers": {
-						"type": "number",
-						"format": "double",
-						"nullable": true,
-						"description": "最大ユーザー数（法人のみ。-1 または null は無制限）"
-					},
-					"maxSharedPrompts": {
-						"type": "number",
-						"format": "double",
-						"nullable": true,
-						"description": "共有プロンプト作成上限数（-1 または null は無制限）"
-					},
-					"nextBillingDate": {
-						"type": "string",
-						"description": "次回請求日（個人契約のみ）"
-					},
-					"isCancelScheduled": {
-						"type": "boolean",
-						"description": "解約予約中かどうか"
-					},
-					"organizationName": {
-						"type": "string",
-						"description": "法人名（法人契約の場合）"
-					}
-				},
-				"required": [
-					"type",
-					"planCode",
-					"planName",
-					"status",
-					"features",
-					"maxUsers",
-					"maxSharedPrompts",
-					"isCancelScheduled"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
 			"CheckUserInfoSuccessResponse": {
 				"properties": {
 					"message": {
@@ -160,15 +89,11 @@
 							"firstName"
 						],
 						"type": "object"
-					},
-					"subscription": {
-						"$ref": "#/components/schemas/SubscriptionInfo"
 					}
 				},
 				"required": [
 					"message",
-					"user",
-					"subscription"
+					"user"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -596,6 +521,65 @@
 				},
 				"required": [
 					"email"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"VerifyTokenResponse": {
+				"properties": {
+					"idToken": {
+						"type": "string"
+					},
+					"user": {
+						"properties": {
+							"hd": {
+								"type": "string"
+							},
+							"family_name": {
+								"type": "string"
+							},
+							"given_name": {
+								"type": "string"
+							},
+							"picture": {
+								"type": "string"
+							},
+							"name": {
+								"type": "string"
+							},
+							"email_verified": {
+								"type": "boolean"
+							},
+							"email": {
+								"type": "string"
+							},
+							"sub": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"email_verified",
+							"email",
+							"sub"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"idToken",
+					"user"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"VerifyTokenRequest": {
+				"properties": {
+					"accessToken": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"accessToken"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -1121,6 +1105,39 @@
 							"schema": {
 								"$ref": "#/components/schemas/DeleteUserRequest",
 								"description": "削除するユーザーのメールアドレス"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/auth/google/verify": {
+			"post": {
+				"operationId": "VerifyGoogleToken",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/VerifyTokenResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Googleアクセストークンを検証し、IDトークンとして扱う",
+				"tags": [
+					"Auth"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/VerifyTokenRequest"
 							}
 						}
 					}

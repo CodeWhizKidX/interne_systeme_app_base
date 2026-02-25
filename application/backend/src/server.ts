@@ -6,7 +6,7 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import { verifyToken } from "./middlewares/auth";
-import type { FirebaseTokenPayload } from "./middlewares/auth";
+import type { GoogleOAuthTokenPayload } from "./middlewares/auth";
 import type { LoginUserCustom } from "./types/express";
 import path from "path";
 import swaggerUi from "swagger-ui-express";
@@ -76,7 +76,7 @@ if (swaggerDocument) {
 declare global {
   namespace Express {
     interface Request {
-      user?: FirebaseTokenPayload & LoginUserCustom;
+      user?: GoogleOAuthTokenPayload & LoginUserCustom;
     }
   }
 }
@@ -85,14 +85,21 @@ declare global {
 
 // --- 認証ミドルウェアを /api に対して登録 ---
 // 重要: RegisterRoutes が "/api/..." を生成している前提（tsoa.json の basePath = "/api"）
-app.use("/api", verifyToken);
+// /api/auth/* は認証不要なので、認証ミドルウェアで除外する
+app.use("/api", (req, res, next) => {
+  // /api/auth/* は認証不要
+  if (req.path.startsWith("/auth")) {
+    return next();
+  }
+  return verifyToken(req, res, next);
+});
 
 // --- 管理者権限チェックミドルウェアを /api/admin に対して登録 ---
 // /api/admin/* へのアクセスは管理者（globalAdmin, serviceAdmin, readonlyAdmin）のみ許可
 // 注意: 認証ミドルウェア（verifyToken）の後に登録すること
 app.use("/api/admin", requireAdmin);
 
-
+// ルートを登録（認証ミドルウェアの後に登録）
 RegisterRoutes(app);
 
 // --- エラーハンドリングミドルウェア（TSOAのバリデーションエラーなどをJSONで返す） ---

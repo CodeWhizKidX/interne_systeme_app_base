@@ -24,7 +24,7 @@ export interface DbUserInfo {
  * ユーザーコンテキストの型
  */
 interface UserContextType {
-  /** Firebase認証ユーザー情報 */
+  /** Google OAuth認証ユーザー情報 */
   user: AuthUser;
   /** ユーザー情報を設定 */
   setUser: (user: AuthUser) => void;
@@ -107,7 +107,7 @@ export function UserProvider({ children }: UserProviderProps) {
    * 表示名を取得
    */
   const getDisplayName = useCallback((): string => {
-    // 優先順位: カスタム表示名 > Firebase表示名 > メールアドレス > "ユーザー"
+    // 優先順位: カスタム表示名 > Google OAuth表示名 > メールアドレス > "ユーザー"
     if (dbUserInfo?.displayName) return dbUserInfo.displayName;
     if (user?.customDisplayName) return user.customDisplayName;
     if (user?.displayName) return user.displayName;

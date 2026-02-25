@@ -1,9 +1,9 @@
 // types/express/index.d.ts
-import type { FirebaseTokenPayload } from "../../middlewares/auth";
+import type { GoogleOAuthTokenPayload } from "../../middlewares/auth";
 
 declare module "express-serve-static-core" {
   interface Request {
-    user?: FirebaseTokenPayload & LoginUserCustom;
+    user?: GoogleOAuthTokenPayload & LoginUserCustom;
   }
 }
 

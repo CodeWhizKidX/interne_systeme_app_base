@@ -19,7 +19,7 @@ const Header: React.FC<HeaderProps> = ({
   const currentPath = location.pathname;
   
   // UserContextからユーザー情報を取得
-  const { user, isAdmin, getDisplayName, getProfilePicture, getProvider } = useUser();
+  const { user, isAdmin, getDisplayName, getProfilePicture } = useUser();
 
   // ★ 現在のパスが /admin で始まるかどうかで管理者モードを判定
   const isAdminMode = isAdmin() && currentPath.startsWith("/admin");

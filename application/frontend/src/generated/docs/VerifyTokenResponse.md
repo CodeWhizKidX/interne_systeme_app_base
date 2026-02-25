@@ -1,20 +1,20 @@
-# CheckUserInfo200Response
+# VerifyTokenResponse
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**message** | **string** |  | [default to undefined]
-**user** | [**CheckUserInfoSuccessResponseUser**](CheckUserInfoSuccessResponseUser.md) |  | [default to undefined]
+**idToken** | **string** |  | [default to undefined]
+**user** | [**VerifyTokenResponseUser**](VerifyTokenResponseUser.md) |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { CheckUserInfo200Response } from './api';
+import { VerifyTokenResponse } from './api';
 
-const instance: CheckUserInfo200Response = {
-    message,
+const instance: VerifyTokenResponse = {
+    idToken,
     user,
 };
 ```
