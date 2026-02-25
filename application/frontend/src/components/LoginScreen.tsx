@@ -90,15 +90,15 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         <div className="bg-white rounded-xl shadow-md border border-gray-100 p-8">
           {/* ロゴ */}
           <div className="flex justify-center mb-4">
-            <img src="/logo.png" alt="ManaPro ロゴ" className="h-16 w-auto" />
+            <img src="/logo.png" alt="システム名 ロゴ" className="h-16 w-auto" />
           </div>
 
           {/* タイトル */}
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-gray-800 mb-1">
-              ManaPro
+              システム名
             </h1>
-            <p className="text-gray-500 text-sm">プロンプトマネージャー</p>
+            <p className="text-gray-500 text-sm">システム名</p>
           </div>
 
           {/* エラーメッセージ */}
@@ -162,7 +162,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
         {/* フッター */}
         <p className="text-center text-xs text-gray-400 mt-6">
-          © 2024 ManaPro. All rights reserved.
+          © 2024 システム名. All rights reserved.
         </p>
       </div>
     </div>

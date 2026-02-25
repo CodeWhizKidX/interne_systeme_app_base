@@ -96,7 +96,7 @@ const Header: React.FC<HeaderProps> = ({
                 isAdminMode ? "text-white" : "text-gray-800"
               }`}
             >
-              ManaPro
+              システム名
               {/* ★ 管理者モードの場合は「[管理者]」の文字を追加 */}
               {isAdminMode && (
                 <span className="ml-3 px-2 py-1 bg-white text-gray-800 text-xs font-bold rounded-full">
